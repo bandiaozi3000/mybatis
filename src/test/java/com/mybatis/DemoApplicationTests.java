@@ -16,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
@@ -95,5 +96,12 @@ public class DemoApplicationTests {
      *     3.将写好的插件注册到全局配置文件中
      *     4.若编写多个插件,动态对象将层层包裹,即配置文件后注册的插件包装在外层,所以运行的时候应该是后注册的插件方法先运行
      */
+
+    @Test
+    public void test21(){
+        List<String> a = new ArrayList<>();
+        a.add("2");
+        System.out.println("2======="+a+"================"+"2".equals(a));
+    }
 
 }
