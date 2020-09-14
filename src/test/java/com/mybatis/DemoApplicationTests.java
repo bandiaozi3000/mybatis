@@ -1,30 +1,23 @@
 package com.mybatis;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import com.mybatis.bean.Area;
 import com.mybatis.dao.AreaMapper;
-import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class DemoApplicationTests {
 
-    @Autowired
-    public AreaMapper areaMapper;
+//    @Autowired
+//    public AreaMapper areaMapper;
 
     @Autowired
     SqlSessionFactory sqlSessionFactory;
@@ -68,15 +61,16 @@ public class DemoApplicationTests {
         System.out.println(sqlSessionFactory.getConfiguration());
         SqlSession sqlSession =sqlSessionFactory.openSession();
         AreaMapper areaMapper =sqlSession.getMapper(AreaMapper.class);
-       Page<Object> page = PageHelper.startPage(2, 2);
-        List<Area> list = areaMapper.getArea();
-        for(Area area:list){
-            System.out.println(area.getId()+area.getName());
-        }
-        System.out.println("当前页数为:"+page.getPageNum());
-        System.out.println("总共页数为:"+page.getTotal());
-        System.out.println("每页的记录数为:"+page.getPageSize());
-        System.out.println("总页码为:"+page.getPages());
+//       Page<Object> page = PageHelper.startPage(2, 2);
+        List<Area> list = areaMapper.getArea(1);
+        System.out.println(list.get(0));
+//        for(Area area:list){
+//            System.out.println(area.getId()+area.getName());
+//        }
+//        System.out.println("当前页数为:"+page.getPageNum());
+//        System.out.println("总共页数为:"+page.getTotal());
+//        System.out.println("每页的记录数为:"+page.getPageSize());
+//        System.out.println("总页码为:"+page.getPages());
 
     }
 
@@ -97,11 +91,5 @@ public class DemoApplicationTests {
      *     4.若编写多个插件,动态对象将层层包裹,即配置文件后注册的插件包装在外层,所以运行的时候应该是后注册的插件方法先运行
      */
 
-    @Test
-    public void test21(){
-        List<String> a = new ArrayList<>();
-        a.add("2");
-        System.out.println("2======="+a+"================"+"2".equals(a));
-    }
 
 }

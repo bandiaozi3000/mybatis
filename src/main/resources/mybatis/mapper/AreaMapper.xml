@@ -4,8 +4,8 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mybatis.dao.AreaMapper">
 
-    <select id="getArea" resultType="Area">
-        select  * from district
+    <select id="getArea" resultType="com.mybatis.bean.Area">
+        select  * from area where id = #{id,jdbcType=BIGINT}
     </select>
 
 </mapper>
