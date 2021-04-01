@@ -1,31 +1,29 @@
 package com.mybatis.bean;
 
-public class Area {
+import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
+
+import java.io.Serializable;
+
+@Data
+@TableName("area")
+public class Area implements Serializable {
+    @TableId(type = IdType.AUTO)
     private Integer id;
     private String name;
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return "Area{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
+//    @TableField(fill = FieldFill.INSERT)
+//    private LocalDateTime createdAt;
+//    @TableField(fill = FieldFill.INSERT)
+//    private String createUserId;
+//    @TableField(fill = FieldFill.INSERT_UPDATE)
+//    private LocalDateTime updatedAt;
+//    @TableField(fill = FieldFill.INSERT_UPDATE)
+//    private String updateUserId;
+//    @TableLogic
+//    private String isDelete;
+//    @TableField(fill = FieldFill.UPDATE)
+//    private LocalDateTime deletedAt;
+//    @TableField(fill = FieldFill.UPDATE)
+//    private String deleteUserId;
 
 }

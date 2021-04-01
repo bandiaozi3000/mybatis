@@ -8,4 +8,20 @@
         select  * from area where id = #{id,jdbcType=BIGINT}
     </select>
 
+    <select id="getList"  resultType="com.mybatis.bean.Area" parameterType="com.mybatis.bean.QueryObj">
+        SELECT
+        <foreach item="item" collection="query.fields" index="idx" open=" " separator="," close=" ">
+            ${item}
+        </foreach>
+        FROM
+        ${query.table}
+        <where>
+            <foreach collection="query.param" item="tm" index="key">
+                <if test='tm != null and tm.toString().trim() != ""'>
+                    and ${key} = #{tm}
+                </if>
+            </foreach>
+        </where>
+    </select>
+
 </mapper>

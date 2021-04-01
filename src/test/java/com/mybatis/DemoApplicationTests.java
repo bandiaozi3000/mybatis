@@ -2,6 +2,7 @@ package com.mybatis;
 
 import com.mybatis.bean.Area;
 import com.mybatis.dao.AreaMapper;
+import com.mybatis.service.AreaService;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.Test;
@@ -16,8 +17,11 @@ import java.util.List;
 @SpringBootTest
 public class DemoApplicationTests {
 
-//    @Autowired
-//    public AreaMapper areaMapper;
+    @Autowired
+    public AreaMapper areaMapper;
+
+    @Autowired
+    public AreaService areaService;
 
     @Autowired
     SqlSessionFactory sqlSessionFactory;
@@ -73,8 +77,6 @@ public class DemoApplicationTests {
 //        System.out.println("总页码为:"+page.getPages());
 
     }
-
-
     /**
      * 插件原理:
      *     1.四大对象每个创建的时候都会有一个interceptorChain.pluginAll(parameterHandler)
@@ -90,6 +92,56 @@ public class DemoApplicationTests {
      *     3.将写好的插件注册到全局配置文件中
      *     4.若编写多个插件,动态对象将层层包裹,即配置文件后注册的插件包装在外层,所以运行的时候应该是后注册的插件方法先运行
      */
+
+
+    /**
+     * 测试Mapper执行流程
+     * 测试之前出了一个小问题:invalid bound statement.原因:因为用的是mybatis-plus,但是配置文件配置项用的还是mybatis的配置.
+     * 所以配置文件不生效,这点需要注意!由此可知生成statement时需要找方法对应的xml,当存在的时候才会生成正确statement.
+     * 现在开始看Mapper执行流程:
+     *   1.areaMapper是一个代理类,执行代理方法:mapperMethod.execute(sqlSession, args).mapperMethod封装了方法的唯一id和查询类型
+     *
+     *   2.MybatisMapperMethod.execute.此时查询类型是select,且返回类型为list,走executeForMany(76).
+     *
+     *   3.sqlSession.selectList(158).此时sqlSession为SqlSessionTemplate.
+     *     SqlSessionTemplate.selectList.this.sqlSessionProxy.selectList(),走代理方法SqlSessionInterceptor.invoke().
+     *     getSqlSession(),该方法会创建一个session.SqlSessionUtils(105)->sessionFactory.openSession->openSessionFromDataSource
+     *     返回new DefaultSqlSession(configuration, executor, autoCommit).其中创建executor时,configuration.newExecutor里面有一个
+     *     方法interceptorChain.pluginAll.此时就是对executor执行插件代理.
+     *
+     *   4.层层代理,执行到DefaultSqlSession.selectList.   executor.query(147)
+     *
+     *   5.此时executor是一个代理类,执行代理方法.走Plugin.invoke.此时有拦截器插件的话会走插件,例如分页插件就是在此时执行的.
+     *   接下来大致流程为:CachingExecutor.query->BaseExecutor.query->queryFromDatabase->queryFromDatabase
+     *   ->doQuery->MybatisSimpleExecutor.doQuery->StatementHandler.query->PreparedStatement.execute
+     *   ->resultSetHandler.handleResultSets即可得到返回结果.
+     *
+     */
+    @Test
+    public void testMapper(){
+        List<Area> list = areaMapper.getArea(1);
+        System.out.println(list);
+    }
+
+
+    /**
+     * 测试Spring事务
+     * 生成代理时机和SpringAop一样,在AbstractAutowireCapableBeanFactory.doCreateBean.initializeBean(593)
+     * .applyBeanPostProcessorsAfterInitialization(1766).遍历bean后置处理器,得知起作用的是
+     * InfrastructureAdvisorAutoProxyCreator.查看该处理器作用
+     *
+     * InfrastructureAdvisorAutoProxyCreator:
+     *   AbstractAutoProxyCreator.createProxy创建代理类.原理和AOP并无差别.
+     * 执行事务方法,方法具体执行为TransactionInterceptor.invoke->TransactionAspectSupport.invokeWithinTransaction
+     * 可以看到有三个比较核心的方法:(176)invocation.proceedWithInvocation(),completeTransactionAfterThrowing,commitTransactionAfterReturning
+     * 分别对应着事务执行,异常事务回滚,和事务提交. 大致流程即如上所述.
+     *
+     */
+    @Test
+    public void testSpringTransaction(){
+        areaService.testTransaction();
+        System.out.println(areaService);
+    }
 
 
 }
